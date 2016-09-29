@@ -1,5 +1,5 @@
 #
-#   Calypso module - Unit test
+#   Calypso parser proxy
 #   Copyright (C) 2016  Michel Megens <dev@bietje.net>
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -16,21 +16,31 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-module Calypso
-  class UnitTest
-    attr_reader :name, :path, :mode, :hw, :hardware, :exec
+require 'calypso/iparser'
+require 'calypso/yamlparser'
 
-    def initialize(name, path, mode, hw, cmds)
-      @name = name
-      @path = File.expand_path path
-      @mode = mode
-      @hw = hw
-      @hardware = hw
-      @exec = cmds
+module Calypso
+  class ParserProxy
+    def initialize(type, file)
+      @file = File.expand_path(file)
+      @parser = case type
+                when :yaml
+                  YAMLParser.new(@file)
+                else
+                  nil
+                end
     end
 
-    def execute
-      false
+    def parse
+      @parser.parse
+    end
+
+    def hardware
+      @parser.hardware
+    end
+
+    def tests
+      @parser.tests
     end
   end
 end

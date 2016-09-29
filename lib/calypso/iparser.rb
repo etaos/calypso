@@ -1,5 +1,5 @@
 #
-#   Calypso module - Unit test
+#   Calypso parser interface
 #   Copyright (C) 2016  Michel Megens <dev@bietje.net>
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -17,20 +17,25 @@
 #
 
 module Calypso
-  class UnitTest
-    attr_reader :name, :path, :mode, :hw, :hardware, :exec
+  class IParser
+    attr_reader :tests, :hardware
 
-    def initialize(name, path, mode, hw, cmds)
-      @name = name
-      @path = File.expand_path path
-      @mode = mode
-      @hw = hw
-      @hardware = hw
-      @exec = cmds
+    def initialize(file)
+      @tests = {}
+      @hardware = {}
+      @file = file
     end
 
-    def execute
-      false
+    def parse
+    end
+
+    protected
+    def set_hardware(hw)
+      @hardware = hw
+    end
+
+    def set_tests(tests)
+      @tests = tests
     end
   end
 end

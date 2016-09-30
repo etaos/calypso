@@ -21,7 +21,7 @@ require 'thread'
 
 module Calypso
   class SerialMonitor
-    attr_reader :portname, :baud, :databits, :stopbits, :parity
+    attr_reader :portname, :baud, :databits, :stopbits, :parity, :data
     CALYPSO_EXIT = "calypso_exit".freeze
 
     def initialize(port, baud = 9600, databits = 8, stopbits = 1, parity = SerialPort::NONE)
@@ -31,7 +31,7 @@ module Calypso
       @databits = databits
       @stopbits = stopbits
       @parity = parity
-
+      @data = nil
       @mutex = Mutex.new
     end
 
@@ -42,21 +42,27 @@ module Calypso
 
       thread = Thread.new do
         while running do
-          input = gets
-          if input.nil?
-            @mutex.synchronize {running = false}
-            manual_stop = true
-            Thread.stop
-            break
-          end
+          begin
+            input = gets
+            puts input
+            if input.nil?
+              @mutex.synchronize {running = false}
+              manual_stop = true
+              Thread.stop
+              break
+            end
 
-          input.chomp!
-          port.write input
-          port.flush
+            input.chomp!
+            @port.write input
+            @port.flush
+          rescue Exception => e
+            puts e.message
+            exit
+          end
         end
       end
 
-      while (data = port.gets.chomp) do
+      while (data = @port.gets.chomp) do
         if data.eql? CALYPSO_EXIT then
           Thread.kill thread
           break
@@ -67,11 +73,10 @@ module Calypso
         break unless running
       end
 
-      thread.join
-      puts "Test aborted by user" if manual_stop
-      ary
+      thread.join unless manual_stop
+      @data = ary
+      manual_stop
     end
-
   end
 end
 

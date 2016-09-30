@@ -21,16 +21,19 @@ require 'optparse'
 require 'optparse/time'
 require 'ostruct'
 
-require "calypso/version"
+require 'calypso/version'
+require 'calypso/hardware'
+require 'calypso/version'
+require 'calypso/parserproxy'
 
 module Calypso
   class << self
     def start(args)
       options = OpenStruct.new
-      options.yaml = false
+      options.parser = nil
       options.config = nil
       options.path = Dir.pwd
-      parse_lang_set = false
+      options.single = nil
 
       parser = OptionParser.new do |p|
         p.banner = "Usage: calypso [options] -c [config]"
@@ -38,8 +41,12 @@ module Calypso
         p.separator "Specific options:"
 
         p.on('-y', '--yaml', "Parse configuration as YAML") do
-          parse_lang_set = true
-          options.yaml = true
+          options.parser = :yaml
+        end
+
+        p.on('-t [TESTID]', '--test [TESTID]',
+             'Run a specific test') do |id|
+          options.single = id
         end
 
         p.on('-c [FILE]', '--config [FILE]',
@@ -63,14 +70,12 @@ module Calypso
 
       parser.parse!
 
-      mandatory = [:config]
+      mandatory = [:config, :parser]
       missing = mandatory.select do |param|
         if options[param].nil? or options[param] == false
           param
         end
       end
-
-      missing.push :parser unless parse_lang_set
 
       unless missing.empty?
         puts "Missing mandatory options!"
@@ -78,6 +83,21 @@ module Calypso
         puts parser
         exit
       end
+
+      config = Calypso::ParserProxy.new(options.parser, options.config)
+      config.parse
+      Calypso.run_single(config, options.single) unless options.single.nil?
+      Calypso.run(config) if options.single.nil?
+    end
+
+    def run_single(parser, testid)
+      test = parser.tests[testid]
+      puts "Running test [#{test.name}]"
+      
+      test.execute
+    end
+
+    def run(parser)
     end
   end
 end

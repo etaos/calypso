@@ -21,6 +21,7 @@ require 'yaml'
 require 'calypso/iparser'
 require 'calypso/hardware'
 require 'calypso/unittest'
+require 'calypso/serialportdata'
 
 module Calypso
   class YAMLParser < IParser
@@ -40,11 +41,10 @@ module Calypso
 
       obj['unit-tests'].each do |key, value|
         hw = hardware[value['hardware']]
-        path = value['path']
-        mode = value['mode']
-        cmds = value['execute']
-        name = value['name']
-        tst = Calypso::UnitTest.new(name, path, mode, hw, cmds)
+        port = value['port']
+        baud = value['baud']
+        serial = Calypso::SerialPortData.new(port, baud)
+        tst = Calypso::UnitTest.new(value, serial, hw)
         tests[key] = tst
       end
 

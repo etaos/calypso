@@ -16,21 +16,52 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+require 'fileutils'
+
+require 'calypso/serialmonitor'
+require 'calypso/serialportdata'
+
 module Calypso
   class UnitTest
     attr_reader :name, :path, :mode, :hw, :hardware, :exec
 
-    def initialize(name, path, mode, hw, cmds)
-      @name = name
-      @path = File.expand_path path
-      @mode = mode
+    ETAOS_BUILD_TARGETS = "all".freeze
+    ETAOS_PREBUILD_TARGETS = "prepare".freeze
+    ETAOS_CLEAN_TARGETS = "clean".freeze
+    ETAOS_INSTALL_TARGETS = "modules_install".freeze
+
+    def initialize(conf, serial, hw)
+      @name = conf['value']
+      @path = File.expand_path conf['path']
+      @mode = conf['mode']
       @hw = hw
       @hardware = hw
-      @exec = cmds
+      @exec = conf['execute']
+      config = conf['config']
+      @conf = "#{@path}/#{config}" unless conf.nil?
+      @libdir = File.expand_path conf['libdir'] unless conf['libdir'].nil?
+      @serial = serial
+      @raw = conf
+      @success = false
     end
 
     def execute
-      false
+      system("make #{ETAOS_CLEAN_TARGETS}")
+
+      FileUtils.copy(@conf, './.config')
+      system("make #{ETAOS_PREBUILD_TARGETS}")
+      system("make #{ETAOS_BUILD_TARGETS}")
+      system("make #{ETAOS_INSTALL_TARGETS} INSTALL_MOD_PATH=#{@libdir}")
+      system("make -f scripts/Makefile.calypso TEST=#{@path}")
+      sp = Calypso::SerialMonitor.new(@serial.port)
+      manual_stop = sp.monitor
+      print "Did the test run succesfully? [y/n]: " if manual_stop
+      reply = gets
+      @success = true if reply.eql? 'y' or reply.eql? 'Y'
+    end
+
+    def success?
+      @success
     end
   end
 end

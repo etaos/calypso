@@ -46,6 +46,7 @@ module Calypso
         serial = Calypso::SerialPortData.new(port, baud)
         tst = Calypso::UnitTest.new(value, serial, hw)
         tests[key] = tst
+	hw.add_test tst
       end
 
       set_hardware(hardware)

@@ -55,9 +55,14 @@ module Calypso
       system("make -f scripts/Makefile.calypso TEST=#{@path}")
       sp = Calypso::SerialMonitor.new(@serial.port)
       manual_stop = sp.monitor
-      print "Did the test run succesfully? [y/n]: " if manual_stop
-      reply = gets
-      @success = true if reply.eql? 'y' or reply.eql? 'Y'
+
+      if manual_stop
+	print "Did the test run succesfully? [y/n]: "
+	reply = gets
+	@success = true if reply.eql? 'y' or reply.eql? 'Y'
+      else
+	@success = true
+      end
     end
 
     def success?

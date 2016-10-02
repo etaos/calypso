@@ -18,12 +18,17 @@
 
 module Calypso
   class Hardware
-    attr_reader :id, :name, :cpu
+    attr_reader :id, :name, :cpu, :tests
 
     def initialize(id, name, cpu)
       @id = id
       @name = name
       @cpu = cpu
+      @tests = []
+    end
+
+    def add_test(test)
+      @tests.push test
     end
   end
 end

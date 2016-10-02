@@ -87,7 +87,7 @@ module Calypso
       config = Calypso::ParserProxy.new(options.parser, options.config)
       config.parse
       Calypso.run_single(config, options.single) unless options.single.nil?
-      Calypso.run(config) if options.single.nil?
+      Calypso.run(config, options) if options.single.nil?
     end
 
     def run_single(parser, testid)
@@ -97,7 +97,15 @@ module Calypso
       test.execute
     end
 
-    def run(parser)
+    def run(parser, options)
+      hw = parser.hardware
+
+      hw.each do |k, v|
+	tests = v.tests
+	tests.each do |test|
+	  test.execute
+	end
+      end
     end
   end
 end

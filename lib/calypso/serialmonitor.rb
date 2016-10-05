@@ -65,6 +65,7 @@ module Calypso
       while (data = @port.gets.chomp) do
         if data.eql? CALYPSO_EXIT then
           Thread.kill thread
+          ary.push data
           break
         end
 
@@ -74,6 +75,7 @@ module Calypso
       end
 
       thread.join unless manual_stop
+      @port.close
       @data = ary
       manual_stop
     end

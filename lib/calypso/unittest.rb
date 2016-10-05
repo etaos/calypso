@@ -17,13 +17,14 @@
 #
 
 require 'fileutils'
+require 'pp'
 
 require 'calypso/serialmonitor'
 require 'calypso/serialportdata'
 
 module Calypso
   class UnitTest
-    attr_reader :name, :path, :mode, :hw, :hardware, :exec
+    attr_reader :name, :path, :mode, :hw, :hardware, :exec, :autorun
 
     ETAOS_BUILD_TARGETS = "all".freeze
     ETAOS_PREBUILD_TARGETS = "prepare".freeze
@@ -31,7 +32,7 @@ module Calypso
     ETAOS_INSTALL_TARGETS = "modules_install".freeze
 
     def initialize(conf, serial, hw)
-      @name = conf['value']
+      @name = conf['name']
       @path = File.expand_path conf['path']
       @mode = conf['mode']
       @hw = hw
@@ -43,6 +44,8 @@ module Calypso
       @serial = serial
       @raw = conf
       @success = false
+      @autorun = conf['autorun']
+      @compare_file = conf['compare']
     end
 
     def execute
@@ -56,17 +59,34 @@ module Calypso
       sp = Calypso::SerialMonitor.new(@serial.port)
       manual_stop = sp.monitor
 
-      if manual_stop
-	print "Did the test run succesfully? [y/n]: "
-	reply = gets
-	@success = true if reply.eql? 'y' or reply.eql? 'Y'
+      if manual_stop or @mode.eql? 'manual'
+        print "Did the test run succesfully? [y/n]: "
+        reply = gets
+        @success = true if reply.eql? 'y' or reply.eql? 'Y'
       else
-	@success = true
+        @success = compare(sp)
       end
     end
 
     def success?
       @success
+    end
+
+    private
+    def compare(serial)
+      return if @compare_file.nil?
+      path = "#{@path}/#{@compare_file}"
+      data = serial.data
+      idx = 0
+
+      file = File.open path
+      while (line = file.gets) do
+        line.chomp!
+        return false unless line.eql? data[idx]
+        idx += 1
+      end
+
+      return true
     end
   end
 end

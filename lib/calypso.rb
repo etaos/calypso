@@ -101,10 +101,17 @@ module Calypso
       hw = parser.hardware
 
       hw.each do |k, v|
-	tests = v.tests
-	tests.each do |test|
-	  test.execute
-	end
+        print "Running #{v.name} tests. Press enter to continue..."
+        gets
+        tests = v.tests
+        tests.each do |test|
+          next unless test.autorun
+          test.execute
+          success = "succesfully" if test.success?
+          sucess = "unsuccessfully" unless test.success?
+          puts ""
+          puts "#{test.name} ran #{success}!"
+        end
       end
     end
   end

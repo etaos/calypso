@@ -34,7 +34,7 @@ module Calypso
     def initialize(conf, serial, hw)
       @name = conf['name']
       @path = File.expand_path conf['path']
-      @mode = conf['mode']
+      @mode = conf['mode'] == 'manual' ? :manual : :auto
       @hw = hw
       @hardware = hw
       @exec = conf['execute']
@@ -49,19 +49,21 @@ module Calypso
     end
 
     def execute
-      system("make #{ETAOS_CLEAN_TARGETS}")
+      unless Calypso.options.bare
+        system("make #{ETAOS_CLEAN_TARGETS}")
 
-      FileUtils.copy(@conf, './.config')
-      system("make #{ETAOS_PREBUILD_TARGETS}")
-      system("make #{ETAOS_BUILD_TARGETS}")
-      system("make #{ETAOS_INSTALL_TARGETS} INSTALL_MOD_PATH=#{@libdir}")
-      system("make -f scripts/Makefile.calypso TEST=#{@path}")
+        FileUtils.copy(@conf, './.config')
+        system("make #{ETAOS_PREBUILD_TARGETS}")
+        system("make #{ETAOS_BUILD_TARGETS}")
+        system("make #{ETAOS_INSTALL_TARGETS} INSTALL_MOD_PATH=#{@libdir}")
+      end
+      system("make -f scripts/Makefile.calypso TARGETS=\"#{@exec}\" TEST=#{@path}")
       sp = Calypso::SerialMonitor.new(@serial.port)
       manual_stop = sp.monitor
 
-      if manual_stop or @mode.eql? 'manual'
+      if manual_stop or @mode == :manual
         print "Did the test run succesfully? [y/n]: "
-        reply = gets
+        reply = gets.chomp
         @success = true if reply.eql? 'y' or reply.eql? 'Y'
       else
         @success = compare(sp)

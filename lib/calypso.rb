@@ -28,12 +28,15 @@ require 'calypso/parserproxy'
 
 module Calypso
   class << self
+    attr_reader :options
+
     def start(args)
       options = OpenStruct.new
       options.parser = nil
       options.config = nil
       options.path = Dir.pwd
       options.single = nil
+      options.bare = false
 
       parser = OptionParser.new do |p|
         p.banner = "Usage: calypso [options] -c [config]"
@@ -42,6 +45,10 @@ module Calypso
 
         p.on('-y', '--yaml', "Parse configuration as YAML") do
           options.parser = :yaml
+        end
+
+        p.on('-b', '--bare', "Do not recompile ETA/OS before running the test") do
+          options.bare = true
         end
 
         p.on('-t [TESTID]', '--test [TESTID]',
@@ -84,6 +91,7 @@ module Calypso
         exit
       end
 
+      @options = options
       config = Calypso::ParserProxy.new(options.parser, options.config)
       config.parse
       Calypso.run_single(config, options.single) unless options.single.nil?
@@ -95,6 +103,7 @@ module Calypso
       puts "Running test [#{test.name}]"
       
       test.execute
+      puts "[#{test.name}]:\t\t#{test.success? ? 'OK' : 'FAIL'}"
     end
 
     def run(parser, options)
@@ -111,6 +120,14 @@ module Calypso
           sucess = "unsuccessfully" unless test.success?
           puts ""
           puts "#{test.name} ran #{success}!"
+          puts ""
+        end
+
+        # Now print a report
+        puts "Unit test results:\n"
+        tests.each do |test|
+          next unless test.autorun
+          puts "[#{test.name}]: #{test.success? ? 'OK' : 'FAIL'}"
         end
       end
     end

@@ -16,11 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-require 'fileutils'
-require 'pp'
-
 require 'calypso/serialmonitor'
 require 'calypso/serialportdata'
+require 'calypso/kbuild'
 
 module Calypso
   class UnitTest
@@ -49,15 +47,15 @@ module Calypso
     end
 
     def execute
-      unless Calypso.options.bare
-        system("make #{ETAOS_CLEAN_TARGETS}")
+      kbuild = Kbuild.new(@conf, @path)
 
-        FileUtils.copy(@conf, './.config')
-        system("make #{ETAOS_PREBUILD_TARGETS}")
-        system("make #{ETAOS_BUILD_TARGETS}")
-        system("make #{ETAOS_INSTALL_TARGETS} INSTALL_MOD_PATH=#{@libdir}")
+      unless Calypso.options.bare
+        kbuild.clean
+        kbuild.build
+        kbuild.install_modules(@libdir)
       end
-      system("make -f scripts/Makefile.calypso TARGETS=\"#{@exec}\" TEST=#{@path}")
+      
+      kbuild.build_test(@exec)
       sp = Calypso::SerialMonitor.new(@serial.port)
       manual_stop = sp.monitor
 

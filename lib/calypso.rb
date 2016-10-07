@@ -37,6 +37,8 @@ module Calypso
       options.path = Dir.pwd
       options.single = nil
       options.bare = false
+      options.hardware = nil
+      options.run_mode = :all
 
       parser = OptionParser.new do |p|
         p.banner = "Usage: calypso [options] -c [config]"
@@ -54,11 +56,18 @@ module Calypso
         p.on('-t [TESTID]', '--test [TESTID]',
              'Run a specific test') do |id|
           options.single = id
+          options.run_mode = :single
         end
 
         p.on('-c [FILE]', '--config [FILE]',
              'Path to the test configuration') do |conf|
           options.config = conf
+        end
+
+        p.on('-H [hardware-id]', '--hardware [hardware-id]',
+             'Run all tests configured for a specific MCU') do |hardware|
+          options.hardware = hardware
+          options.run_mode = :hardware
         end
 
         p.separator ""
@@ -91,11 +100,25 @@ module Calypso
         exit
       end
 
+      unless options.single.nil? or options.hardware.nil?
+        puts "The options -t and -H cannot be used together!"
+        puts ""
+        puts parser
+        exit
+      end
+
       @options = options
       config = Calypso::ParserProxy.new(options.parser, options.config)
       config.parse
-      Calypso.run_single(config, options.single) unless options.single.nil?
-      Calypso.run(config, options) if options.single.nil?
+
+      case options.run_mode
+      when :all
+        Calypso.run(config, options)
+      when :hardware
+        Calypso.run_hardware(config, options.hardware)
+      when :single
+        Calypso.run_single(config, options.single)
+      end
     end
 
     def run_single(parser, testid)
@@ -103,32 +126,37 @@ module Calypso
       puts "Running test [#{test.name}]"
       
       test.execute
-      puts "[#{test.name}]:\t\t#{test.success? ? 'OK' : 'FAIL'}"
+      puts "[#{test.name}]: #{test.success? ? 'OK' : 'FAIL'}"
+    end
+
+    def run_hardware(config, hwid)
+      hw = config.hardware[hwid]
+      tests = hw.tests
+      puts "Running #{hw.name} tests. Press enter to continue..."
+      gets
+
+      tests.each do |test|
+        next unless test.autorun
+        test.execute
+        success = "successfully" if test.success?
+        success = "unsuccessfully" unless test.success?
+        puts ""
+        puts "#{test.name} ran #{success}!"
+        puts ""
+      end
+
+      puts "Unit test results:\n"
+      tests.each do |test|
+        next unless test.autorun
+        puts "[#{test.name}]: #{test.success? ? 'OK' : 'FAIL'}"
+      end
     end
 
     def run(parser, options)
       hw = parser.hardware
 
-      hw.each do |k, v|
-        print "Running #{v.name} tests. Press enter to continue..."
-        gets
-        tests = v.tests
-        tests.each do |test|
-          next unless test.autorun
-          test.execute
-          success = "succesfully" if test.success?
-          sucess = "unsuccessfully" unless test.success?
-          puts ""
-          puts "#{test.name} ran #{success}!"
-          puts ""
-        end
-
-        # Now print a report
-        puts "Unit test results:\n"
-        tests.each do |test|
-          next unless test.autorun
-          puts "[#{test.name}]: #{test.success? ? 'OK' : 'FAIL'}"
-        end
+      hw.each do |hwid, hwdata|
+        Calypso.run_hardware(parser, hwid)
       end
     end
   end

@@ -83,7 +83,7 @@ module Calypso
           exit
         end
 
-        p.on_tail("-v", "--version", "Print the Zeno version") do
+        p.on_tail("-v", "--version", "Print the Calypso version") do
           puts "Calypso #{Calypso::VERSION}"
           exit
         end

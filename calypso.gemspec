@@ -8,6 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = Calypso::VERSION
   spec.authors       = ["Michel Megens"]
   spec.email         = ["dev@bietje.net"]
+  spec.license       = 'GPLv3'
 
   spec.summary       = %q{Embedded test automation.}
   spec.description   = %q{Automate tests for embedded system based on a specific configuration.}
@@ -22,6 +23,6 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.10"
   spec.add_development_dependency "rake", "~> 10.0"
-  spec.add_development_dependency "rspec"
-  spec.add_development_dependency "serialport"
+  spec.add_development_dependency "rspec", "3.4.0"
+  spec.add_development_dependency "serialport", "1.3.0"
 end

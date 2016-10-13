@@ -1,0 +1,4 @@
+-o ./Documentation/html
+--main README.md
+
+lib/

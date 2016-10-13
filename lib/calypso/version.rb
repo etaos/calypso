@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+#
 module Calypso
+  # Calypso version constant
   VERSION = "0.1.0"
 end

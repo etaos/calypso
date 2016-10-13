@@ -20,15 +20,30 @@ require 'calypso/serialmonitor'
 require 'calypso/serialportdata'
 require 'calypso/kbuild'
 
+#
 module Calypso
+  # Unit test model class
   class UnitTest
-    attr_reader :name, :path, :mode, :hw, :hardware, :exec, :autorun
+    # @return [String] Unit test name.
+    attr_reader :name
+    # @return [String] Unit test path.
+    attr_reader :path
+    # @return [Symbol] Unit test mode.
+    attr_reader :mode
+    # @return [Calypso::Hardware] Unit test hardware.
+    attr_reader :hw
+    # @return [Calypso::Hardware] Unit test hardware.
+    attr_reader :hardware
+    # @return [String] Unit test build and execution targets.
+    attr_reader :exec
+    # @return [Boolean] Whether or not the test should be ran automatically.
+    attr_reader :autorun
 
-    ETAOS_BUILD_TARGETS = "all".freeze
-    ETAOS_PREBUILD_TARGETS = "prepare".freeze
-    ETAOS_CLEAN_TARGETS = "clean".freeze
-    ETAOS_INSTALL_TARGETS = "modules_install".freeze
-
+    # Create a new UnitTest model.
+    #
+    # @param conf [Hash] Unit test configuration values.
+    # @param serial [Calypso::SerialPortData] Serial port information.
+    # @param hw [Calypso::Hardware] Unit test hardware.
     def initialize(conf, serial, hw)
       @name = conf['name']
       @path = File.expand_path conf['path']
@@ -46,6 +61,9 @@ module Calypso
       @compare_file = conf['compare']
     end
 
+    # Execute the unit test.
+    #
+    # @return [Boolean] Whether or not the test executed succesfully.
     def execute
       kbuild = Kbuild.new(@conf, @path)
 
@@ -68,6 +86,9 @@ module Calypso
       end
     end
 
+    # Check if the test ran succesfully.
+    #
+    # @return [Boolean] Whether or not the test executed succesfully.
     def success?
       @success
     end

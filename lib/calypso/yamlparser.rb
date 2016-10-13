@@ -23,12 +23,20 @@ require 'calypso/hardware'
 require 'calypso/unittest'
 require 'calypso/serialportdata'
 
+#
 module Calypso
+  # YAML parser library
   class YAMLParser < IParser
+    # Create a new YAML parser.
+    #
+    # @param file [String] Path to the configuration file.
     def initialize(file)
       super
     end
 
+    # Parse the configuration file.
+    #
+    # @return [nil]
     def parse
       obj = YAML.load_file(@file)
       hardware = Hash.new

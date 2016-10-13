@@ -19,8 +19,14 @@
 require 'calypso/iparser'
 require 'calypso/yamlparser'
 
+#
 module Calypso
+  # Proxy class for the Calypso configuration parser.
   class ParserProxy
+    # Create a new parser proxy instance.
+    #
+    # @param type [Symbol] Parser type.
+    # @param file [String] Path to configuration file.
     def initialize(type, file)
       @file = File.expand_path(file)
       @parser = case type
@@ -31,14 +37,21 @@ module Calypso
                 end
     end
 
+    # Parse the config file.
     def parse
       @parser.parse
     end
 
+    # Get the available hardware.
+    #
+    # @return [Hash] Hash of the available hardware.
     def hardware
       @parser.hardware
     end
 
+    # Get a hash containing all tests.
+    #
+    # @return [Hash] All available unit tests.
     def tests
       @parser.tests
     end

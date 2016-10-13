@@ -26,10 +26,15 @@ require 'calypso/hardware'
 require 'calypso/version'
 require 'calypso/parserproxy'
 
+# Calypso base module
 module Calypso
   class << self
     attr_reader :options
 
+    # Start Calypso.
+    #
+    # @param args [Array] Argument list
+    # @return [nil]
     def start(args)
       options = OpenStruct.new
       options.parser = nil
@@ -113,7 +118,7 @@ module Calypso
 
       case options.run_mode
       when :all
-        Calypso.run(config, options)
+        Calypso.run(config)
       when :hardware
         Calypso.run_hardware(config, options.hardware)
       when :single
@@ -121,6 +126,11 @@ module Calypso
       end
     end
 
+    # Run a single test.
+    #
+    # @param parser [Calypso::ParserProxy] Configuration parser.
+    # @param testid [String] Test identifier.
+    # @return [nil]
     def run_single(parser, testid)
       test = parser.tests[testid]
       puts "Running test [#{test.name}]"
@@ -129,6 +139,11 @@ module Calypso
       puts "[#{test.name}]: #{test.success? ? 'OK' : 'FAIL'}"
     end
 
+    # Run all tests for a specific piece of hardware.
+    #
+    # @param config [Calypso::ParserProxy] Configuration parser.
+    # @param hwid [String] Hardware ID.
+    # @return [nil]
     def run_hardware(config, hwid)
       hw = config.hardware[hwid]
       tests = hw.tests
@@ -152,7 +167,11 @@ module Calypso
       end
     end
 
-    def run(parser, options)
+    # Run all unit tests.
+    #
+    # @param parser [Calypso::ParserProxy] Configuration parser.
+    # @return [nil]
+    def run(parser)
       hw = parser.hardware
 
       hw.each do |hwid, hwdata|

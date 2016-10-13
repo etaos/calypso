@@ -16,10 +16,28 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+#
 module Calypso
+  # Serial port information wrapper.
   class SerialPortData
-    attr_reader :port, :baud, :databits, :stopbits, :parity
+    # @return [String] Path to the serial device.
+    attr_reader :port
+    # @return [Fixnum] Serial baud rate.
+    attr_reader :baud
+    # @return [Fixnum] Number of data bits per byte.
+    attr_reader :databits
+    # @return [Fixnum] Number of stop bits.
+    attr_reader :stopbits
+    # @return [Symbol] Connection parity.
+    attr_reader :parity
 
+    # Create a new serial port controller.
+    #
+    # @param port [String] Path to the serial device.
+    # @param baud [Fixnum] Serial baud rate.
+    # @param databits [Fixnum] Number of data bits per byte.
+    # @param stopbits [Fixnum] Number of stop bits.
+    # @param parity [Symbol] Connection parity.
     def initialize(port, baud = 9600, databits = 8, stopbits = 1, parity = SerialPort::NONE)
       @port = port
       @baud = baud

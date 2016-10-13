@@ -16,24 +16,43 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+#
 module Calypso
+  # Parser interface.
   class IParser
-    attr_reader :tests, :hardware
+    # @return [Hash] Hash of unit tests.
+    attr_reader :tests
+    # @return [Hash] Hash of available hardware.
+    attr_reader :hardware
 
+    # Create a new Parser.
+    #
+    # @param file [String] Path to the configuration file.
     def initialize(file)
       @tests = {}
       @hardware = {}
       @file = file
     end
 
+    # Cruch data.
+    #
+    # @return [nil]
     def parse
     end
 
     protected
+    # Set the hardware hash.
+    #
+    # @param hw [Hash] Hash of available hardware.
+    # @return [nil]
     def set_hardware(hw)
       @hardware = hw
     end
 
+    # Set the tests hash.
+    #
+    # @param tests [Hash] Hash of available tests.
+    # @return [nil]
     def set_tests(tests)
       @tests = tests
     end

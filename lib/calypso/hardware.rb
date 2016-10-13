@@ -16,10 +16,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+#
 module Calypso
+  # Calypso hardware model.
   class Hardware
-    attr_reader :id, :name, :cpu, :tests
+    # @return [String] Hardware ID.
+    attr_reader :id
+    # @return [String] Hardware name.
+    attr_reader :name
+    # @return [String] CPU name.
+    attr_reader :cpu
+    # @return [Array] An array of Calypso::UnitTest
+    attr_reader :tests
 
+    # Create a new Calypso::Hardware object.
+    #
+    # @param id [String] Hardware ID.
+    # @param name [String] Hardware name.
+    # @param cpu [String] CPU name (or MCU for the matter of it).
     def initialize(id, name, cpu)
       @id = id
       @name = name
@@ -27,6 +41,10 @@ module Calypso
       @tests = []
     end
 
+    # Add a new test.
+    #
+    # @param test [Calypso::UnitTest] Test to add.
+    # @return [Array] The new array of [Calypso::UnitTest].
     def add_test(test)
       @tests.push test
     end

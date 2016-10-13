@@ -19,5 +19,5 @@
 #
 module Calypso
   # Calypso version constant
-  VERSION = "0.1.0"
+  VERSION = '0.1.0'
 end

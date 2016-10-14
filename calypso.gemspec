@@ -19,7 +19,15 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.files         = ['bin/calypso',
                         'lib/calypso.rb',
-                        'lib/calypso/version.rb']
+                        'lib/calypso/version.rb',
+                        'lib/calypso/hardware.rb',
+                        'lib/calypso/iparser.rb',
+                        'lib/calypso/kbuild.rb',
+                        'lib/calypso/parserproxy.rb',
+                        'lib/calypso/serialmonitor.rb',
+                        'lib/calypso/serialportdata.rb',
+                        'lib/calypso/unittest.rb',
+                        'lib/calypso/yamlparser.rb']
 
   spec.add_development_dependency "bundler", "~> 1.10"
   spec.add_development_dependency "rake", "~> 10.0"

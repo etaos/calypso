@@ -136,7 +136,7 @@ module Calypso
     # Run a single test.
     #
     # @param parser [Calypso::ParserProxy] Configuration parser.
-    # @param testid [String] Test identifier.
+    # @param options [OpenStruct] Options passed to Calypso on the cmd line.
     # @return [nil]
     def run_single(parser, options)
       test = parser.tests[options.single]
@@ -150,6 +150,7 @@ module Calypso
     # Run all tests for a specific piece of hardware.
     #
     # @param config [Calypso::ParserProxy] Configuration parser.
+    # @param options [OpenStruct] Options passed to Calypso on the cmd line.
     # @param hwid [String] Hardware ID.
     # @return [nil]
     def run_hardware(config, options, hwid)
@@ -179,6 +180,7 @@ module Calypso
     # Run all unit tests.
     #
     # @param parser [Calypso::ParserProxy] Configuration parser.
+    # @param options [OpenStruct] Options passed to Calypso on the cmd line.
     # @return [nil]
     def run(parser, options)
       hw = parser.hardware

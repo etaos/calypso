@@ -44,6 +44,8 @@ module Calypso
       options.bare = false
       options.hardware = nil
       options.run_mode = :all
+      options.tty_fix = false
+      options.tty_fix = true if ENV['TTY_FIX'].eql? 'true'
 
       parser = OptionParser.new do |p|
         p.banner = "Usage: calypso [options] -c [config]"
@@ -56,6 +58,11 @@ module Calypso
 
         p.on('-b', '--bare', "Do not recompile ETA/OS before running the test") do
           options.bare = true
+        end
+
+        p.on('-f', '--tty-fix',
+             'Enforce the correct TTY settings before trying to run a test') do
+          options.tty_fix = true
         end
 
         p.on('-t [TESTID]', '--test [TESTID]',
@@ -118,11 +125,11 @@ module Calypso
 
       case options.run_mode
       when :all
-        Calypso.run(config)
+        Calypso.run(config, options)
       when :hardware
-        Calypso.run_hardware(config, options.hardware)
+        Calypso.run_hardware(config, options, options.hardware)
       when :single
-        Calypso.run_single(config, options.single)
+        Calypso.run_single(config, options)
       end
     end
 
@@ -131,10 +138,11 @@ module Calypso
     # @param parser [Calypso::ParserProxy] Configuration parser.
     # @param testid [String] Test identifier.
     # @return [nil]
-    def run_single(parser, testid)
-      test = parser.tests[testid]
+    def run_single(parser, options)
+      test = parser.tests[options.single]
       puts "Running test [#{test.name}]"
       
+      Calypso.tty_fix(test.serial) if options.tty_fix
       test.execute
       puts "[#{test.name}]: #{test.success? ? 'OK' : 'FAIL'}"
     end
@@ -144,7 +152,7 @@ module Calypso
     # @param config [Calypso::ParserProxy] Configuration parser.
     # @param hwid [String] Hardware ID.
     # @return [nil]
-    def run_hardware(config, hwid)
+    def run_hardware(config, options, hwid)
       hw = config.hardware[hwid]
       tests = hw.tests
       puts "Running #{hw.name} tests. Press enter to continue..."
@@ -152,6 +160,7 @@ module Calypso
 
       tests.each do |test|
         next unless test.autorun
+        Calypso.tty_fix(test.serial) if options.tty_fix
         test.execute
         success = "successfully" if test.success?
         success = "unsuccessfully" unless test.success?
@@ -171,12 +180,21 @@ module Calypso
     #
     # @param parser [Calypso::ParserProxy] Configuration parser.
     # @return [nil]
-    def run(parser)
+    def run(parser, options)
       hw = parser.hardware
 
       hw.each do |hwid, hwdata|
-        Calypso.run_hardware(parser, hwid)
+        Calypso.run_hardware(parser, options, hwid)
       end
+    end
+
+    # Fix the serial TTY configuration.
+    #
+    # @param serial [Calypso::SerialPortData] Serial port data
+    # @return [nil]
+    def tty_fix(serial)
+      fix_cmd = "stty 57600 raw ignbrk hup < #{serial.port}"
+      system(fix_cmd)
     end
   end
 end

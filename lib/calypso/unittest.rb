@@ -38,6 +38,8 @@ module Calypso
     attr_reader :exec
     # @return [Boolean] Whether or not the test should be ran automatically.
     attr_reader :autorun
+    # @return [SerialPortData] Information about the serial port used by the test
+    attr_reader :serial
 
     # Create a new UnitTest model.
     #

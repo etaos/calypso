@@ -24,7 +24,7 @@ author :
   feedburner :
 
 project :
-  download : https://git.bietje.net/etaos/calypso/repository/archive.tar.gz?ref=v0.1.0
+  download : https://git.bietje.net/etaos/calypso/repository/archive.tar.gz?ref=v0.1.2
   github : https://github.com/etaos/calypso
   gitlab : https://git.bietje.net/etaos/calypso
   issue : https://git.bietje.net/etaos/calypso/issues/new

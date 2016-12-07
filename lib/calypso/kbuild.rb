@@ -44,6 +44,14 @@ module Calypso
       FileUtils.copy(@conf, "#{Dir.pwd}/.config")
     end
 
+    def save_config
+      FileUtils.copy("#{Dir.pwd}/.config", @conf)
+    end
+
+    def prepare
+      system("make #{ETAOS_PREBUILD_TARGETS}")
+    end
+
     # Run the clean target on ETA/OS.
     def clean
       system("make #{ETAOS_CLEAN_TARGETS}")

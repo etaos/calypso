@@ -88,6 +88,12 @@ module Calypso
       end
     end
 
+    def update
+      kbuild = Kbuild.new(@conf, @path)
+      kbuild.prepare
+      kbuild.save_config
+    end
+
     # Check if the test ran succesfully.
     #
     # @return [Boolean] Whether or not the test executed succesfully.

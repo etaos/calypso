@@ -46,6 +46,7 @@ module Calypso
       options.run_mode = :all
       options.tty_fix = false
       options.tty_fix = true if ENV['TTY_FIX'].eql? 'true'
+      options.update = false
 
       parser = OptionParser.new do |p|
         p.banner = "Usage: calypso [options] -c [config]"
@@ -54,6 +55,10 @@ module Calypso
 
         p.on('-y', '--yaml', "Parse configuration as YAML") do
           options.parser = :yaml
+        end
+
+        p.on('-u', '--update', "Update configuration files") do
+          options.update = true
         end
 
         p.on('-b', '--bare', "Do not recompile ETA/OS before running the test") do
@@ -123,6 +128,11 @@ module Calypso
       config = Calypso::ParserProxy.new(options.parser, options.config)
       config.parse
 
+      if options.update
+        Calypso.update(config, options)
+        exit
+      end
+
       case options.run_mode
       when :all
         Calypso.run(config, options)
@@ -130,6 +140,25 @@ module Calypso
         Calypso.run_hardware(config, options, options.hardware)
       when :single
         Calypso.run_single(config, options)
+      end
+    end
+
+    def update_hw(parser, options, hwid)
+      hw = parser.hardware[hwid]
+      tests = hw.tests
+
+      tests.each do |test|
+        puts "Updating #{test.name}"
+        puts ""
+        test.update
+      end
+    end
+
+    def update(parser, options)
+      hw = parser.hardware
+
+      hw.each do |hwid, hwdata|
+        Calypso.update_hw(parser, options, hwid)
       end
     end
 

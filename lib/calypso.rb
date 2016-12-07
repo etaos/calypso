@@ -143,6 +143,12 @@ module Calypso
       end
     end
 
+    # Update the Kbuild configurations.
+    #
+    # @param parser [Calypso::ParserProxy] Config parser
+    # @param options [OpenStruct] Program options
+    # @param hwid [String] Harware ID of the tests to update
+    # @return [nil]
     def update_hw(parser, options, hwid)
       hw = parser.hardware[hwid]
       tests = hw.tests
@@ -154,6 +160,11 @@ module Calypso
       end
     end
 
+    # Update the Kbuild configurations.
+    #
+    # @param parser [Calypso::ParserProxy] Config parser
+    # @param options [OpenStruct] Program options
+    # @return [nil]
     def update(parser, options)
       hw = parser.hardware
 

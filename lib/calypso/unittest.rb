@@ -88,6 +88,9 @@ module Calypso
       end
     end
 
+    # Update the unit test configuration file.
+    #
+    # @return [nil]
     def update
       kbuild = Kbuild.new(@conf, @path)
       kbuild.prepare

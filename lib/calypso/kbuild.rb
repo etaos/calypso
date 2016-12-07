@@ -44,10 +44,16 @@ module Calypso
       FileUtils.copy(@conf, "#{Dir.pwd}/.config")
     end
 
+    # Save the configuration file back to the test directory.
+    #
+    # @return [nil]
     def save_config
       FileUtils.copy("#{Dir.pwd}/.config", @conf)
     end
 
+    # Run the prebuild targets.
+    #
+    # @return [nil]
     def prepare
       system("make #{ETAOS_PREBUILD_TARGETS}")
     end
